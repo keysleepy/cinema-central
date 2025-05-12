@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cinema Central - Login</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #121212;
+      --secondary-color: #1e1e1e;
+      --accent-color: #e50914;
+      --accent-secondary: #f5b50a;
+      --text-primary: #ffffff;
+      --text-secondary: #b3b3b3;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--primary-color);
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1.logo {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      background: linear-gradient(45deg, var(--accent-color), var(--accent-secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: pulsate 3s infinite alternate;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .letter {
+      display: inline-block;
+      animation: fadeIn 0.5s ease forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes pulsate {
+      0% {
+        opacity: 0.95;
+        text-shadow: 0 0 2px rgba(229, 9, 20, 0.3);
+      }
+      100% {
+        opacity: 1;
+        text-shadow: 0 0 4px rgba(229, 9, 20, 0.5);
+      }
+    }
+
+    .form-container {
+      background-color: var(--secondary-color);
+      padding: 2rem;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #222;
+      color: var(--text-primary);
+      border: 1px solid #444;
+      border-radius: 5px;
+      font-family: inherit;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 10px var(--accent-color);
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--accent-color);
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    button:hover {
+      background-color: #f6121d;
+      transform: translateY(-2px);
+    }
+
+    .toggle-text {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .toggle-btn:hover {
+      color: white;
+    }
+
+    #error-message {
+      color: var(--accent-color);
+      background-color: rgba(229, 9, 20, 0.1);
+      border: 1px solid rgba(229, 9, 20, 0.3);
+      border-radius: 4px;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      text-align: center;
+      display: none;
+    }
+
+    /* Custom Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-content {
+      position: relative;
+      background-color: var(--secondary-color);
+      border-radius: 10px;
+      padding: 25px;
+      width: 90%;
+      max-width: 450px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+      animation: modalFadeIn 0.3s forwards;
+    }
+
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .modal-content h2 {
+      color: var(--text-primary);
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+      border-bottom: 2px solid var(--accent-color);
+      padding-bottom: 10px;
+    }
+
+    .modal-content p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-bottom: 25px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      background-color: var(--accent-color);
+      color: white;
+      width: auto;
+    }
+
+    .modal-btn:hover {
+      background-color: #ff0f1f;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 24px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .close:hover {
+      color: var(--text-primary);
+    }
+
+    /* Responsive styles for modal */
+    @media screen and (max-width: 768px) {
+      .modal-content {
+        width: 95%;
+        padding: 20px;
+      }
+
+      .modal-content h2 {
+        font-size: 1.3rem;
+      }
+
+      .modal-content p {
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+      }
+
+      .modal-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      .modal-content {
+        width: 90%;
+        padding: 15px;
+      }
+
+      .modal-content h2 {
+        font-size: 1.2rem;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+      }
+
+      .modal-content p {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+      }
+
+      .modal-btn {
+        padding: 7px 14px;
+        font-size: 0.8rem;
+      }
+
+      .close {
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1 class="logo" id="logo">Cinema Central</h1>
+
+  <div class="form-container" role="form" aria-labelledby="form-title">
+    <h2 id="form-title">Sign In</h2>
+
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required minlength="6">
+      </div>
+
+      <button type="submit" id="submit-btn">Sign In</button>
+      <div id="spinner" style="display: none;">Signing In...</div>
+      <div id="error-message" style="color: red; display: none;"></div>
+    </form>
+
+    <div class="toggle-text">
+      <button id="toggle-mode" class="toggle-btn">Need an account? Sign Up</button>
+    </div>
+  </div>
+
+  <!-- Custom Success Modal -->
+  <div id="success-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modal-title">Success</h2>
+      <p id="modal-message">Account created successfully!</p>
+      <div class="modal-actions">
+        <button id="modal-ok" class="modal-btn">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Modular SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAynmE1yUn60JFwiNzYcDnT0bb5ooQ5ngw",
+      authDomain: "cinema-central-fc349.firebaseapp.com",
+      projectId: "cinema-central-fc349",
+      storageBucket: "cinema-central-fc349.firebasestorage.app",
+      messagingSenderId: "32929986369",
+      appId: "1:32929986369:web:987336e816689cf71b13c0"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Modal functionality
+    const successModal = document.getElementById("success-modal");
+    const modalMessage = document.getElementById("modal-message");
+    const modalOkBtn = document.getElementById("modal-ok");
+    const modalCloseBtn = document.querySelector("#success-modal .close");
+
+    // Function to show success modal
+    function showSuccessModal(message, title = "Success") {
+      // Set modal content
+      document.getElementById("modal-title").textContent = title;
+      modalMessage.textContent = message;
+
+      // Show modal
+      successModal.classList.add("show");
+
+      // Handle OK button click
+      modalOkBtn.addEventListener("click", closeModalAndRedirect, { once: true });
+      modalCloseBtn.addEventListener("click", closeModalAndRedirect, { once: true });
+
+      // Close modal when clicking outside
+      successModal.addEventListener("click", (event) => {
+        if (event.target === successModal) {
+          closeModalAndRedirect();
+        }
+      }, { once: true });
+
+      // Add keyboard support (Enter or Escape to close)
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === "Escape") {
+          closeModalAndRedirect();
+        }
+      }, { once: true });
+    }
+
+    // Function to close modal and redirect
+    function closeModalAndRedirect() {
+      successModal.classList.remove("show");
+      window.location.href = "index.html";
+    }
+
+    // Form behavior
+    let isSignUp = false;
+
+    const toggleBtn = document.getElementById("toggle-mode");
+    const formTitle = document.getElementById("form-title");
+    const submitBtn = document.getElementById("submit-btn");
+    const loginForm = document.getElementById("login-form");
+    const spinner = document.getElementById("spinner");
+    const errorMessage = document.getElementById("error-message");
+
+    toggleBtn.addEventListener("click", () => {
+      isSignUp = !isSignUp;
+      formTitle.textContent = isSignUp ? "Create Account" : "Sign In";
+      submitBtn.textContent = isSignUp ? "Sign Up" : "Sign In";
+      toggleBtn.textContent = isSignUp
+        ? "Already have an account? Sign In"
+        : "Need an account? Sign Up";
+      errorMessage.style.display = "none";
+    });
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      spinner.style.display = "block";
+      submitBtn.style.display = "none";
+      errorMessage.style.display = "none";
+
+      try {
+        let userCredential;
+
+        if (isSignUp) {
+          userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+          console.log("User signed up:", user.uid);
+
+          // Save to Firestore
+          await setDoc(doc(db, "users", user.uid), {
+            email: user.email,
+            createdAt: serverTimestamp()
+          });
+
+          // Store user info in localStorage for persistence
+          localStorage.setItem('user', JSON.stringify({
+            uid: userCredential.user.uid,
+            email: userCredential.user.email,
+            displayName: userCredential.user.displayName
+          }));
+
+          // Show success modal instead of alert
+          showSuccessModal("Account created successfully!");
+        } else {
+// In the signIn function of login.html (inside the submit event listener)
+try {
+  userCredential = await signInWithEmailAndPassword(auth, email, password);
+  console.log("User signed in:", userCredential.user.uid);
+  
+  // Clear any existing generic localStorage keys to prevent data inheritance
+  localStorage.removeItem('watchHistory');
+  localStorage.removeItem('favorites');
+  
+  // Also check for any previous user data and handle it properly
+  const previousUserData = localStorage.getItem('user');
+  if (previousUserData) {
+    const previousUser = JSON.parse(previousUserData);
+    if (previousUser && previousUser.uid !== userCredential.user.uid) {
+      // If a different user was logged in before, we don't need to clear their data
+      // as it's stored with user-specific keys
+    }
+  }
+  
+  // Store user info in localStorage for persistence
+  localStorage.setItem('user', JSON.stringify({
+    uid: userCredential.user.uid,
+    email: userCredential.user.email,
+    displayName: userCredential.user.displayName
+  }));
+  
+  window.location.href = "index.html";  // Redirect after success
+} catch (signInError) {
+  console.error("Sign in error:", signInError);
+  
+  if (signInError.code === 'auth/invalid-login-credentials') {
+    errorMessage.textContent = "Invalid email or password. Please check your credentials and try again.";
+  } else if (signInError.code === 'auth/user-not-found') {
+    errorMessage.textContent = "No account found with this email. Please sign up first.";
+  } else if (signInError.code === 'auth/wrong-password') {
+    errorMessage.textContent = "Incorrect password. Please try again.";
+  } else {
+    errorMessage.textContent = signInError.message;
+  }
+  
+  errorMessage.style.display = "block";
+  spinner.style.display = "none";
+  submitBtn.style.display = "block";
+  return;
+}
+        }
+
+      } catch (error) {
+        console.error("Auth error:", error);
+        
+        if (error.code === 'auth/email-already-in-use') {
+          errorMessage.textContent = "This email is already registered. Please sign in instead.";
+        } else if (error.code === 'auth/weak-password') {
+          errorMessage.textContent = "Password is too weak. Please use at least 6 characters.";
+        } else if (error.code === 'auth/invalid-email') {
+          errorMessage.textContent = "Invalid email address. Please check and try again.";
+        } else {
+          errorMessage.textContent = error.message;
+        }
+        
+        errorMessage.style.display = "block";
+        spinner.style.display = "none";
+        submitBtn.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>
