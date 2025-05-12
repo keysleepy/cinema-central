@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Cinema Central</title>
+</head>
+<body>
+  <!-- Splash Screen -->
+  <div class="splash-screen" id="splash-screen">
+    <div class="splash-content">
+      <h1 class="splash-logo">Cinema Central</h1>
+      <p class="splash-tagline">Your gateway to the world of movies</p>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h3>Cinema Central</h3>
+      <button id="sidebar-close" class="sidebar-close">✕</button>
+    </div>
+    <div class="sidebar-section">
+      <h4>History</h4>
+      <div id="history-list" class="sidebar-list"></div>
+    </div>
+    <div class="sidebar-section">
+      <h4>Favorites</h4>
+      <div id="favorites-list" class="sidebar-list"></div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <header>
+      <button id="sidebar-toggle" class="sidebar-toggle">☰</button>
+      <div class="search-container">
+        <form id="form">
+          <input type="text" placeholder="Search" id="search" class="search" autocomplete="off" />
+        </form>
+        <div id="search-suggestions" class="search-suggestions"></div>
+      </div>
+      <div class="search-type-toggle" id="search-type-toggle">
+        <button id="movie-search" class="search-type-btn active">Movies</button>
+        <button id="actor-search" class="search-type-btn">Actors</button>
+      </div>
+    </header>
+
+    <!-- Genres -->
+    <div class="genres-container">
+      <h3 class="genres-title">Browse by Genre</h3>
+      <div id="tags"></div>
+      <div class="clear-genres" id="clear-genres-container"></div>
+    </div>
+
+    <!-- Overlay -->
+    <div id="myNav" class="overlay">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+      <div class="overlay-content" id="overlay-content"></div>
+      <a href="javascript:void(0)" class="arrow left-arrow" id="left-arrow">&#8656;</a>
+      <a href="javascript:void(0)" class="arrow right-arrow" id="right-arrow">&#8658;</a>
+    </div>
+
+    <!-- Main Section -->
+    <main id="main"></main>
+    <div class="pagination">
+      <div class="page" id="prev">Previous Page</div>
+      <div class="current" id="current">1</div>
+      <div class="page" id="next">Next Page</div>
+    </div>
+  </div>
+
+  <!-- Custom Confirmation Modal -->
+  <div id="confirm-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modal-title">Confirmation</h2>
+      <p id="modal-message">Are you sure you want to proceed?</p>
+      <div class="modal-actions">
+        <button id="modal-cancel" class="modal-btn modal-cancel-btn">Cancel</button>
+        <button id="modal-confirm" class="modal-btn modal-confirm-btn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Auth Button -->
+  <!-- <button id="floating-auth-btn" class="floating-auth-btn">Login</button> -->
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAynmE1yUn60JFwiNzYcDnT0bb5ooQ5ngw",
+      authDomain: "cinema-central-fc349.firebaseapp.com",
+      projectId: "cinema-central-fc349",
+      storageBucket: "cinema-central-fc349.appspot.com",
+      messagingSenderId: "32929986369",
+      appId: "1:32929986369:web:987336e816689cf71b13c0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Make Firebase services available globally
+    window.firebaseAuth = auth;
+    window.firebaseDb = db;
+
+    window.checkAuth = function() {
+      return new Promise((resolve) => {
+        onAuthStateChanged(auth, (user) => {
+          resolve(!!user);
+        });
+      });
+    };
+
+    window.signOutUser = function() {
+      signOut(auth).then(() => {
+        localStorage.removeItem('user');
+        window.location.href = "login.html";
+      }).catch((error) => {
+        console.error("Sign out error:", error);
+      });
+    };
+  </script>
+
+  <!-- App Logic -->
+  <script defer>
+    function setupFloatingAuthButton() {
+      const floatingAuthBtn = document.getElementById('floating-auth-btn');
+      if (!floatingAuthBtn) return;
+
+      const userFromStorage = JSON.parse(localStorage.getItem("user"));
+
+      if (userFromStorage) {
+        floatingAuthBtn.textContent = "Logout";
+        floatingAuthBtn.addEventListener('click', () => {
+          window.signOutUser();
+        });
+      } else {
+        floatingAuthBtn.textContent = "Login";
+        floatingAuthBtn.addEventListener('click', () => {
+          window.location.href = "login.html";
+        });
+      }
+    }
+
+    async function initializeMainApp() {
+      try {
+        const auth = window.firebaseAuth;
+        const db = window.firebaseDb;
+        let currentUser;
+
+        const isAuthenticated = await window.checkAuth();
+        const userFromStorage = JSON.parse(localStorage.getItem("user"));
+
+        if (!isAuthenticated && !userFromStorage) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        currentUser = auth.currentUser || (userFromStorage ? { uid: userFromStorage.uid } : null);
+
+        if (!currentUser) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        // Call other initialization functions here if needed
+        console.log("User is authenticated:", currentUser.uid);
+        setupFloatingAuthButton();
+      } catch (error) {
+        console.error("Authentication check failed:", error);
+        window.location.href = "login.html";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", initializeMainApp);
+  </script>
+
+  <!-- External Script -->
+  <script src="script.js" defer></script>
+</body>
+</html>
